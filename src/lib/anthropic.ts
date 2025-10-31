@@ -408,78 +408,48 @@ Use bullet points and tables when appropriate to organize information clearly.
 Highlight critical information that requires immediate attention.`;
 };
 
-// Call Gemini API using the official SDK
 export const callGeminiAPI = async (messages: Message[], systemPrompt: string) => {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  
-  if (!GEMINI_API_KEY) {
-    // For development/demo purposes, return a simulated response if API key is not available
-    return simulateAIResponse(messages[messages.length - 1].content);
-  }
+  if (!GEMINI_API_KEY) return simulateAIResponse(messages[messages.length - 1].content);
 
   try {
-    // Initialize the Gemini API
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    
-    // For text-only input, use the gemini-pro model
-    const model = genAI.getGenerativeModel({ 
+
+    const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-lite",
+      systemInstruction: systemPrompt,
       safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }
       ],
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 1000,
-      },
+        maxOutputTokens: 1000
+      }
     });
 
-    // Prepare the chat history
     const chat = model.startChat({
       history: messages.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }],
+        parts: [{ text: msg.content }]
       })),
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 1000,
-      },
+        maxOutputTokens: 1000
+      }
     });
 
-    // Send the system prompt first if it's a new conversation
-    if (messages.length === 0) {
-      await chat.sendMessage(systemPrompt);
-    }
-
-    // Get the user's last message
     const userMessage = messages[messages.length - 1].content;
-    
-    // Send the message and get the response
     const result = await chat.sendMessage(userMessage);
-    const response = result.response;
-    
-    return response.text();
+    return result.response.text();
   } catch (error) {
     console.error('Error calling Gemini API:', error);
-    // Fallback to simulated response in case of API errors
     return simulateAIResponse(messages[messages.length - 1].content);
   }
 };

@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { AlertCircle, Activity, Heart, Thermometer } from "lucide-react";
+import { AlertCircle, Activity, Heart, Thermometer, Loader2 } from "lucide-react";
 import { dummyTriageExplanations } from "@/data/dummyData";
+import ReactMarkdown from 'react-markdown';
 
 interface TriageFormData {
   name: string;
@@ -32,6 +33,9 @@ export default function TriagePage() {
     level: null,
     explanation: null
   });
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -41,10 +45,11 @@ export default function TriagePage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // Simulate AI triage decision based on vitals
+    // Determine triage level based on vitals
     const systolic = parseInt(formData.bloodPressure.split('/')[0]);
     const heartRate = parseInt(formData.heartRate);
     const hasChestPain = formData.symptoms.toLowerCase().includes('chest pain');
@@ -67,6 +72,40 @@ export default function TriagePage() {
       level: triageLevel,
       explanation: explanation
     });
+    
+    // Connect to AI for detailed analysis
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Patient Triage Assessment:
+Name: ${formData.name}
+Age: ${formData.age}
+Symptoms: ${formData.symptoms}
+Blood Pressure: ${formData.bloodPressure}
+Heart Rate: ${formData.heartRate}
+Temperature: ${formData.temperature}
+Arrival Mode: ${formData.arrivalMode}
+
+Based on this information, provide a detailed triage assessment, recommended actions, and potential diagnosis. The initial triage level is ${triageLevel}.`
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+      
+      const data = await response.json();
+      setAiResponse(data.message.content);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setAiResponse("Error connecting to AI assistant. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -226,7 +265,7 @@ export default function TriagePage() {
                   "text-green-600"
                 }`} />
               </div>
-              <div>
+              <div className="w-full">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
                   AI Triage Recommendation
                 </h2>
@@ -242,14 +281,36 @@ export default function TriagePage() {
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-600">AI Explanation:</span>
+                    <span className="text-sm font-medium text-gray-600">Initial Assessment:</span>
                     <p className="mt-1 text-sm text-gray-800">{triageResult.explanation}</p>
                   </div>
+                  
+                  {/* AI Detailed Response */}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                      <span className="ml-3 text-gray-600">Getting AI analysis...</span>
+                    </div>
+                  ) : aiResponse ? (
+                    <div className="mt-4 border-t pt-4">
+                      <h3 className="text-lg font-medium text-gray-800 mb-2">AI Detailed Analysis</h3>
+                      <div className="prose prose-sm max-w-none">
+                        <ReactMarkdown>{aiResponse}</ReactMarkdown>
+                      </div>
+                    </div>
+                  ) : null}
+                  
                   <div className="pt-4 border-t">
-                    <button className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                    <button 
+                      type="button"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    >
                       Confirm & Add to Queue
                     </button>
-                    <button className="ml-3 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                    <button 
+                      type="button"
+                      className="ml-3 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                    >
                       Override
                     </button>
                   </div>
