@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+mediflow
+
 # next.js
 /.next/
 /out/
