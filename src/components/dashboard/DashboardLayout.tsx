@@ -83,15 +83,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: Home },
-        { name: "Medical Records", href: "/dashboard/records", icon: Settings },
-        { name: "Appointments", href: "/dashboard/appointments", icon: Settings },
-        { name: "Doctors", href: "/dashboard/doctors", icon: User },
-        { name: "Insurance", href: "/dashboard/insurance", icon: Settings },
-        { name: "Medical Card", href: "/dashboard/card", icon: Settings },
-        { name: "Privacy", href: "/dashboard/privacy", icon: Settings },
-        { name: "Profile", href: "/dashboard/profile", icon: User },
-        { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
-        { name: "Help & Support", href: "/dashboard/help", icon: HelpCircle },
+        { name: "Patient Queue", href: "/dashboard/queue", icon: User },
+        { name: "Triage", href: "/dashboard/triage", icon: Bell },
+        { name: "Resources", href: "/dashboard/resources", icon: Settings },
+        { name: "Analytics", href: "/dashboard/analytics", icon: FileText },
+        { name: "Staff", href: "/dashboard/staff", icon: User },
+        { name: "Settings", href: "/dashboard/settings", icon: Settings },
+        { name: "Help", href: "/dashboard/help", icon: HelpCircle },
     ];
 
     const isActive = (path: string) => {
@@ -134,7 +132,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }, [pathname]);
 
 
-    const { userData, loading, notifications, error } = useUserData();
+    const { userData, loading,  error } = useUserData();
 
     if (loading)
         return (
@@ -278,114 +276,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <div className="hidden lg:flex items-start flex-1 px-4 mx-4 lg:mx-0 lg:px-0">
 
                         </div>
-
-                        <div className="flex items-center space-x-4">
-                            <div className="relative">
-                                <button
-                                    id="notifications-button"
-                                    className="relative p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#194dbe]"
-                                    onClick={() => handleNotificationsOpen()}
-                                >
-                                    <Bell size={20} />
-                                    {notifications.some(n => !n.is_read) && (
-                                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                    )}
-                                </button>
-
-                                {isNotificationsOpen && (
-                                    <div
-                                        id="notifications-menu"
-                                        className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-1 z-50"
-                                    >
-                                        <div className="px-4 py-2 border-b border-gray-100">
-                                            <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
-                                        </div>
-                                        <div className="max-h-96 overflow-y-auto">
-                                            {notifications.slice(0, 3).map((notification) => (
-                                                <div
-                                                    key={notification.id}
-                                                    className={`px-4 py-3 hover:bg-gray-50 ${!notification.is_read ? 'bg-blue-50' : ''}`}
-                                                >
-                                                    <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                                                    <p className="text-sm text-gray-500">{notification.message}</p>
-                                                    <p className="text-xs text-gray-400 mt-1">{timeAgo(notification.created_at)}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="px-4 py-2 border-t border-gray-100">
-                                            <Link href={'/dashboard/notifications'} className="text-sm text-[#194dbe] hover:text-[#0f3179] font-medium">
-                                                see all notifications
-                                            </Link>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Profile Dropdown */}
-                            <div className="relative z-50">
-                                <button
-                                    id="profile-button"
-                                    className="flex items-center space-x-3 focus:outline-none"
-                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                >
-                                    <div className="w-8 h-8 rounded-full bg-[#194dbe] flex items-center justify-center text-white">
-                                        <span className="text-sm font-medium">{`${(user.first_name || '').toUpperCase().trim().slice(0, 1)}${(user.last_name || '').toUpperCase().trim().slice(0, 1)}` || 'U'}</span>
-                                    </div>
-                                    {user.address && (
-                                        <span
-                                            className="hidden sm:inline-block text-xs text-gray-600 max-w-[140px] md:max-w-[200px] truncate"
-                                            title={user.address}
-                                        >
-                                            {user.address}
-                                        </span>
-                                    )}
-                                </button>
-
-                                {isProfileOpen && (
-                                    <div
-                                        id="profile-menu"
-                                        className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg py-1 z-50 min-w-[12rem] sm:min-w-[18rem] max-w-[90vw]"
-                                    >
-                                        <div className="px-4 py-2 border-b z-50 border-gray-100">
-                                            <p className="text-sm font-medium text-gray-900">{user.first_name || 'User'}</p>
-                                            <p className="text-sm text-gray-500 line-clamp-1">{user.email || ''}</p>
-                                            {user.address && (
-                                                <div className="mt-1">
-                                                    <span className="text-xs text-gray-500">Wallet:</span>
-                                                    <span
-                                                        className="ml-1 text-xs font-mono text-gray-700 block truncate max-w-[80vw] sm:max-w-[18rem]"
-                                                        title={user.address}
-                                                    >
-                                                        {user.address}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="py-1 z-50 bg-white">
-
-                                            <Link
-                                                href="/dashboard/profile"
-                                                className="block px-4 py-2 text-sm text-gray-700 z-50 hover:bg-gray-50"
-                                            >
-                                                Profile Settings
-                                            </Link>
-                                            <Link
-                                                href="/dashboard/wallet"
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                            >
-                                                Wallet Details
-                                            </Link>
-                                            <button
-                                                onClick={handleLogout}
-                                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                                            >
-                                                Sign Out
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+ 
                     </div>
                 </header>
 
@@ -394,24 +285,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </main>
                 {/* Mobile bottom navigation */}
                 <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t shadow-sm">
-                    <div className="grid grid-cols-5 text-xs">
+                    <div className="grid grid-cols-4 text-xs">
                         <Link href="/dashboard" className={`flex flex-col items-center py-2 ${isActive('/dashboard') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
                             <Home className="w-5 h-5" />
                             <span>Home</span>
                         </Link>
-                        <Link href="/dashboard/records" className={`flex flex-col items-center py-2 ${isActive('/dashboard/records') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
-                            <FileText className="w-5 h-5" />
-                            <span>Records</span>
-                        </Link>
-                        <Link href="/dashboard/card" className={`flex flex-col items-center py-2 ${isActive('/dashboard/card') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
-                            <CreditCard className="w-5 h-5" />
-                            <span>Card</span>
-                        </Link>
-                        <Link href="/dashboard/profile" className={`flex flex-col items-center py-2 ${isActive('/dashboard/profile') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
+                        <Link href="/dashboard/queue" className={`flex flex-col items-center py-2 ${isActive('/dashboard/queue') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
                             <User className="w-5 h-5" />
-                            <span>Profile</span>
+                            <span>Queue</span>
                         </Link>
-                        
+                        <Link href="/dashboard/triage" className={`flex flex-col items-center py-2 ${isActive('/dashboard/triage') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
+                            <Bell className="w-5 h-5" />
+                            <span>Triage</span>
+                        </Link>
+                        <Link href="/dashboard/resources" className={`flex flex-col items-center py-2 ${isActive('/dashboard/resources') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
+                            <Settings className="w-5 h-5" />
+                            <span>Resources</span>
+                        </Link>
                     </div>
                 </nav>
             </div>

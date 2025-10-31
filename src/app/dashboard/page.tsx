@@ -3,169 +3,202 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { useUserData } from "@/hooks/useUserData";
-import timeAgo from "@/helpers/timeAgo";
-import { FileText, User, Shield, ChevronRight, CreditCard } from "lucide-react";
-import ScansChart from "@/components/ScansChart";
+import { FileText, User, AlertCircle, Activity, Users, Clock, BedDouble } from "lucide-react";
+import {
+  dummyPatients,
+  dummyResourceMetrics,
+  dummyWeeklyFlow,
+  dummyStaffingSuggestions
+} from "@/data/dummyData";
 
 export default function Dashboard() {
-  const { userData, records, loading, error, reload } = useUserData();
+  const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#194dbe]"></div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // In a real app, these would come from an API
+  const metrics = dummyResourceMetrics;
+  const patients = dummyPatients;
+  const staffingSuggestions = dummyStaffingSuggestions;
+  const weeklyFlow = dummyWeeklyFlow;
 
-  if (error) {
-    return (
-      <DashboardLayout>
-        <div className="text-center py-8">
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={reload}
-            className="mt-4 px-4 py-2 bg-[#194dbe] text-white rounded-lg"
-          >
-            Try Again
-          </button>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const firstName = (userData?.first_name || "").trim();
-  const lastName = (userData?.last_name || "").trim();
-  const fullName = [firstName, lastName].filter(Boolean).join(" ") || "Welcome";
-
-  const recordsCount = records?.length || 0;
-  const appointmentsCount = 0; // Placeholder until appointments data exists
-
-  // moved viewsCount and viewsByDay hooks to the top-level before conditional returns
+  const criticalPatients = patients.filter(p => p.triageLevel === 'Critical').length;
+  const waitingPatients = patients.filter(p => p.status === 'Waiting').length;
 
   return (
     <DashboardLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column */}
+        {/* Left column - Stats and Patient Flow */}
         <div className="lg:col-span-2 space-y-6">
-
-
-          {/* Scans chart with doodle background */}
-          <div className="relative overflow-hidden rounded-xl shadow-sm p-6">
-            <div className="absolute inset-0 rounded-xl" style={{ backgroundColor: '#194dbe' }}></div>
-            <Image
-              src={'/doodle.png'}
-              fill
-              alt="doodle"
-              draggable={false}
-              priority
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="z-0 absolute opacity-5 object-cover rounded-xl"
-            />
-            <Image src="/logo-transparent.png" alt="logo" width={60} height={20} className="absolute top-3 right-3 z-10 opacity-90" />
-
-            <div className="relative z-10">
-              <h2 className="text-lg font-medium text-white">Hello, {fullName}</h2>
-              <p className="text-sm text-white/80 mt-1">Manage your medical records, appointments, providers, and insurance from one place.</p>
-              {/* Stats grid inspired by doodle design */}
-              <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="rounded-lg border border-white/20 bg-white/10 p-4">
-                  <div className="text-xs text-white/80">Records Updated</div>
-                  <div className="mt-1 text-2xl font-bold text-white">{recordsCount}</div>
+          {/* Stats Overview */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Emergency Department Overview</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="bg-red-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                  <span className="text-xs font-medium text-red-600">Critical</span>
                 </div>
-                <div className="rounded-lg border border-white/20 bg-white/10 p-4">
-                  <div className="text-xs text-white/80">Appointments</div>
-                  <div className="mt-1 text-2xl font-bold text-white">{appointmentsCount}</div>
+                <p className="mt-2 text-2xl font-bold text-red-700">{criticalPatients}</p>
+                <p className="text-sm text-red-600">Critical Cases</p>
+              </div>
+              
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <Clock className="w-6 h-6 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-600">Waiting</span>
                 </div>
+                <p className="mt-2 text-2xl font-bold text-blue-700">{waitingPatients}</p>
+                <p className="text-sm text-blue-600">In Queue</p>
+              </div>
 
+              <div className="bg-green-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <BedDouble className="w-6 h-6 text-green-600" />
+                  <span className="text-xs font-medium text-green-600">Beds</span>
+                </div>
+                <p className="mt-2 text-2xl font-bold text-green-700">
+                  {metrics.totalBeds - metrics.occupiedBeds}
+                </p>
+                <p className="text-sm text-green-600">Available</p>
               </div>
             </div>
           </div>
 
-          {/* Quick actions */}
+          {/* Patient Flow Chart */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Link href="/dashboard/records" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-[#194dbe10] transition-colors">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                  <FileText className="w-6 h-6 text-[#194dbe]" />
-                </div>
-                <span className="text-sm font-medium text-gray-800 text-center">Update medical records</span>
-              </Link>
-              <Link href="/dashboard/profile" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-[#194dbe10] transition-colors">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                  <User className="w-6 h-6 text-[#194dbe]" />
-                </div>
-                <span className="text-sm font-medium text-gray-800 text-center">Update profile</span>
-              </Link>
-              <Link href="/dashboard/privacy" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-[#194dbe10] transition-colors">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                  <Shield className="w-6 h-6 text-[#194dbe]" />
-                </div>
-                <span className="text-sm font-medium text-gray-800 text-center">Set privacy settings</span>
-              </Link>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Patient Flow</h2>
+              <select
+                value={selectedTimeRange}
+                onChange={(e) => setSelectedTimeRange(e.target.value)}
+                className="text-sm border rounded-lg px-3 py-2"
+              >
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+              </select>
             </div>
-            <div className="mt-4 text-sm text-gray-600">Configure which data appears on your card in Privacy.</div>
+            <div className="h-64 w-full">
+              {/* Chart would go here - using dummy display for now */}
+              <div className="flex items-end justify-between h-full px-2">
+                {weeklyFlow.map((day, index) => (
+                  <div key={day.day} className="flex flex-col items-center w-1/7">
+                    <div 
+                      className="w-full bg-blue-500 rounded-t"
+                      style={{ height: `${(day.count / 60) * 100}%` }}
+                    ></div>
+                    <span className="text-xs mt-2">{day.day}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Recent records */}
+          {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-800">Recent Records</h2>
-              <Link href="/dashboard/records" className="text-[#194dbe] text-sm font-medium hover:underline flex items-center">
-                View All <ChevronRight className="w-4 h-4 ml-1" />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <Link href="/dashboard/triage" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                  <Activity className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800 text-center">New Triage</span>
+              </Link>
+              
+              <Link href="/dashboard/queue" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                  <Users className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800 text-center">Patient Queue</span>
+              </Link>
+
+              <Link href="/dashboard/resources" className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                  <BedDouble className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800 text-center">Resources</span>
               </Link>
             </div>
-            {records && records.length > 0 ? (
-              <ul className="divide-y divide-gray-100">
-                {records.slice(0, 5).map((r) => (
-                  <li key={r.id} className="py-3 flex items-start">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-800">{r.title}</p>
-                      {r.description && <p className="text-sm text-gray-600 mt-0.5">{r.description}</p>}
-                      <p className="text-xs text-gray-400 mt-1">{timeAgo(r.created_at)}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-600">No records yet. When your provider uploads records, they will appear here.</p>
-            )}
           </div>
         </div>
 
-        {/* Right column */}
+        {/* Right column - Alerts and Suggestions */}
         <div className="space-y-6">
-          {/* Order medical card */}
+          {/* Staff Allocation Suggestions */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-2">Medical Card</h2>
-            <p className="text-sm text-gray-600 mb-4">Customize and order your medical card; then share your public link.</p>
-            <Link href="/dashboard/card" className="inline-flex items-center gap-2 bg-[#194dbe] text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-              <CreditCard className="w-4 h-4" />
-              Order Card
-            </Link>
-          </div>
-
-          {/* Scans chart */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-medium text-gray-800">Card Scans</h2>
-              <span className="text-xs text-gray-500">Last 7 days</span>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">AI Suggestions</h2>
+            <div className="space-y-4">
+              {staffingSuggestions.map((suggestion) => (
+                <div 
+                  key={suggestion.id}
+                  className={`p-4 rounded-lg ${
+                    suggestion.priority === 'High' ? 'bg-red-50' : 'bg-yellow-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-medium ${
+                      suggestion.priority === 'High' ? 'text-red-600' : 'text-yellow-600'
+                    }`}>
+                      {suggestion.priority} Priority
+                    </span>
+                    <span className="text-xs text-gray-500">{suggestion.department}</span>
+                  </div>
+                  <p className="text-sm text-gray-800">{suggestion.message}</p>
+                </div>
+              ))}
             </div>
           </div>
-          {/* Support card */}
-          <div className="bg-[#194dbe] rounded-xl shadow-sm p-6 text-white">
-            <h2 className="text-lg font-medium mb-2">Need Help?</h2>
-            <p className="text-white/80 mb-4">Our support team can assist with accessing records and connecting providers.</p>
-            <Link
-              href="/dashboard/help"
-              className="inline-block bg-white text-[#194dbe] px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-            >
-              Contact Support
-            </Link>
+
+          {/* Resource Status */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Resource Status</h2>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Staff Available</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    {metrics.availableStaff}/{metrics.totalStaff}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full" 
+                    style={{ width: `${(metrics.availableStaff / metrics.totalStaff) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Beds Available</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    {metrics.totalBeds - metrics.occupiedBeds}/{metrics.totalBeds}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-600 h-2 rounded-full" 
+                    style={{ width: `${((metrics.totalBeds - metrics.occupiedBeds) / metrics.totalBeds) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Avg. Wait Time</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    {metrics.averageWaitTime} min
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${
+                      metrics.averageWaitTime > 60 ? 'bg-red-600' : 'bg-yellow-600'
+                    }`}
+                    style={{ width: `${Math.min((metrics.averageWaitTime / 120) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
