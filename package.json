@@ -16,6 +16,7 @@
     "@web3modal/wagmi": "^5.1.11",
     "apexcharts": "^5.3.5",
     "bcryptjs": "^3.0.2",
+    "critters": "^0.0.23",
     "downloadjs": "^1.4.7",
     "framer-motion": "^12.23.24",
     "html-to-image": "^1.11.13",
@@ -52,7 +53,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typescript": "^5"
   }
 }
