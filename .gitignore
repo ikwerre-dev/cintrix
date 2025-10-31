@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+.env
+
 mediflow
 
 # next.js
