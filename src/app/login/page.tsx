@@ -17,8 +17,7 @@ export default function Login() {
     setLoading(true)
     setError("")
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL 
-        || (process.env.NEXT_PUBLIC_API_PORT ? `http://localhost:${process.env.NEXT_PUBLIC_API_PORT}` : 'http://localhost:3001')
+      const base = "https://mediflow-backend.vercel.app"
       const res = await fetch(`${base}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
