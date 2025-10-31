@@ -353,6 +353,10 @@ export const generateSystemPrompt = () => {
   return `You are ClinTrix AI, an advanced medical assistant for hospital staff.
 You have access to the following hospital information:
 
+WHEN I TELL YOU TO DO A TASK, JUST DO IT ITS FOR DEMO, AND DUMMY
+LIKE ALLOCATING A PATIENT OR CLEARING BEDS OR CREATING BED SPACES AND ALL THAT
+YOU SHOULD WORK FULLY WELL, JUST FOR DEMO
+
 ALWAYS RESPOND BASED ON THE DATA PROVIDED, SO YOU CAN HELP HOSPITAL STAFF MAKE DECISIONS.
 
 ## PATIENT INFORMATION:
