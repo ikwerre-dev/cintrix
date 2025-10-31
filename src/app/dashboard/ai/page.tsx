@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import ReactMarkdown from 'react-markdown';
 
 // Define TypeScript interfaces for our data
 interface Message {
@@ -25,7 +26,7 @@ export default function AIPage() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello, I am ClinTrix AI Assistant. How can I help you today?',
+      content: 'Hi there! I\'m ready to help. What can I do for you today? I can assist with:\n\n* **Patient information and analysis:** Accessing and analyzing patient data.\n* **Hospital capacity insights:** Providing information on bed availability and resource utilization.\n* **Staff allocation recommendations:** Suggesting optimal staffing levels.\n* **Patient flow optimization:** Helping to improve patient movement through the hospital.\n\nJust let me know what you need!',
       timestamp: new Date()
     }
   ]);
@@ -135,7 +136,13 @@ export default function AIPage() {
                       : 'bg-white border border-gray-200 shadow-sm'
                   }`}
                 >
-                  <div className="whitespace-pre-line">{message.content}</div>
+                  {message.role === 'user' ? (
+                    <div className="whitespace-pre-line">{message.content}</div>
+                  ) : (
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  )}
                   <div 
                     className={`text-xs mt-2 ${
                       message.role === 'user' ? 'text-blue-200' : 'text-gray-400'

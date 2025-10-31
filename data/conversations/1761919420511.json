@@ -42,8 +42,14 @@
       "content": "ss",
       "timestamp": "2025-10-31T14:05:13.963Z",
       "id": "1761919513963"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm your ClinTrix AI Assistant, designed to help with hospital management and patient care. I can provide:\n\n1. Patient information and analysis\n2. Hospital capacity insights\n3. Staff allocation recommendations\n4. Patient flow optimization\n\nWhat specific information would you like to know about today?",
+      "timestamp": "2025-10-31T14:08:36.978Z",
+      "id": "1761919716979"
     }
   ],
   "createdAt": "2025-10-31T14:03:40.511Z",
-  "updatedAt": "2025-10-31T14:05:13.963Z"
+  "updatedAt": "2025-10-31T14:08:36.979Z"
 }
