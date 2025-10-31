@@ -1,234 +1,199 @@
 'use client';
 
-import { useState } from 'react';
-import { useUserData } from '@/hooks/useUserData';
+import { useState, useRef, useEffect } from 'react';
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
+// Define TypeScript interfaces for our data
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+interface Patient {
+  id: number;
+  name: string;
+  age: number;
+  condition: string;
+  triage: string;
+  waitTime: string;
+}
 
 export default function AIPage() {
-   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [aiInsights, setAiInsights] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'Hello, I am ClinTrix AI Assistant. How can I help you today?',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Dummy patient data
-  const patients = [
-    { id: 1, name: 'John Smith', age: 45, condition: 'Chest Pain', triage: 'Urgent', waitTime: '25 mins' },
-    { id: 2, name: 'Sarah Johnson', age: 32, condition: 'Broken Arm', triage: 'Standard', waitTime: '45 mins' },
-    { id: 3, name: 'Michael Brown', age: 67, condition: 'Shortness of Breath', triage: 'Emergency', waitTime: '5 mins' },
-    { id: 4, name: 'Emily Davis', age: 28, condition: 'Migraine', triage: 'Standard', waitTime: '50 mins' },
-    { id: 5, name: 'Robert Wilson', age: 72, condition: 'Dizziness', triage: 'Urgent', waitTime: '30 mins' }
-  ];
-  
-  // Dummy AI analysis data
-  const aiAnalysisData = {
-    hospitalCapacity: {
-      current: 78,
-      trend: '+5% from yesterday',
-      recommendation: 'Consider preparing additional beds in Ward C'
-    },
-    staffAllocation: {
-      emergency: { current: 8, recommended: 10 },
-      general: { current: 15, recommended: 12 },
-      icu: { current: 6, recommended: 6 }
-    },
-    patientFlow: {
-      averageWaitTime: '37 minutes',
-      bottlenecks: ['Radiology', 'Lab Tests'],
-      recommendation: 'Add one additional technician to Radiology during peak hours'
+  // Scroll to bottom of messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+    
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: inputValue,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+    
+    try {
+      // Call the API endpoint
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: inputValue,
+          conversationId: conversationId
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+      
+      const data = await response.json();
+      
+      // Save the conversation ID for future messages
+      if (data.conversationId && !conversationId) {
+        setConversationId(data.conversationId);
+      }
+      
+      // Add AI response to messages
+      const assistantMessage: Message = {
+        id: data.message.id,
+        role: 'assistant',
+        content: data.message.content,
+        timestamp: new Date(data.message.timestamp)
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error processing your request. Please try again later.',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handlePatientSelect = (patient) => {
-    setSelectedPatient(patient);
-    
-    // Simulate AI generating insights
-    setTimeout(() => {
-      const insights = `
-        Patient: ${patient.name}, ${patient.age}
-        Condition: ${patient.condition}
-        Triage Level: ${patient.triage}
-        
-        AI ANALYSIS:
-        - Based on symptoms and vital signs, recommend immediate ECG
-        - 87% similarity to previous cases that required cardiac monitoring
-        - Potential risk factors: Age, reported family history
-        - Suggested care path: Cardiology consultation within 30 minutes
-        
-        RESOURCE ALLOCATION:
-        - Assign to: Dr. Matthews (Cardiology)
-        - Estimated treatment time: 45-60 minutes
-        - Bed requirement: Monitoring bay with cardiac equipment
-      `;
-      setAiInsights(insights);
-    }, 1000);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">MedFlow AI Assistant</h1>
-        <p className="text-gray-500">AI-powered insights and recommendations for optimal patient care</p>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column - Patient list */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Current Patients</h2>
-          <div className="mb-4">
-            <input 
-              type="text" 
-              placeholder="Search patients..." 
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-          
-          <div className="overflow-hidden">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-                  <th style={{ padding: '8px', fontWeight: 'semibold' }}>Name</th>
-                  <th style={{ padding: '8px', fontWeight: 'semibold' }}>Condition</th>
-                  <th style={{ padding: '8px', fontWeight: 'semibold' }}>Triage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map(patient => (
-                  <tr 
-                    key={patient.id} 
-                    onClick={() => handlePatientSelect(patient)}
-                    style={{ 
-                      borderBottom: '1px solid #e2e8f0', 
-                      cursor: 'pointer',
-                      backgroundColor: selectedPatient?.id === patient.id ? '#ebf5ff' : 'transparent'
-                    }}
-                  >
-                    <td style={{ padding: '8px' }}>{patient.name}</td>
-                    <td style={{ padding: '8px' }}>{patient.condition}</td>
-                    <td style={{ padding: '8px' }}>
-                      <span style={{ 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px',
-                        backgroundColor: 
-                          patient.triage === 'Emergency' ? '#fee2e2' : 
-                          patient.triage === 'Urgent' ? '#fef3c7' : 
-                          '#e0f2fe',
-                        color: 
-                          patient.triage === 'Emergency' ? '#b91c1c' : 
-                          patient.triage === 'Urgent' ? '#92400e' : 
-                          '#0369a1'
-                      }}>
-                        {patient.triage}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <DashboardLayout>
+      <div className="flex flex-col h-[calc(100vh-7rem)]">
+ 
         
-        {/* Middle column - AI Analysis */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">AI Patient Analysis</h2>
-          
-          {selectedPatient ? (
-            <div>
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                <div className="font-medium">{selectedPatient.name}, {selectedPatient.age}</div>
-                <div className="text-sm text-gray-600">Condition: {selectedPatient.condition}</div>
-                <div className="text-sm text-gray-600">Wait time: {selectedPatient.waitTime}</div>
-              </div>
-              
-              <div className="whitespace-pre-line bg-gray-50 p-3 rounded-lg text-sm">
-                {aiInsights || 'Generating AI insights...'}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400">
-              Select a patient to view AI analysis
-            </div>
-          )}
-        </div>
-        
-        {/* Right column - Hospital Insights */}
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-3">Hospital Capacity</h2>
-            <div className="flex items-end mb-2">
-              <span className="text-2xl font-bold">{aiAnalysisData.hospitalCapacity.current}%</span>
-              <span className="ml-2 text-sm text-green-600">{aiAnalysisData.hospitalCapacity.trend}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-3">
+        {/* Chat container */}
+        <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div className="max-w-4xl mx-auto">
+            {messages.map((message) => (
               <div 
-                className="bg-blue-600 h-2.5 rounded-full" 
-                style={{ width: `${aiAnalysisData.hospitalCapacity.current}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">{aiAnalysisData.hospitalCapacity.recommendation}</p>
+                key={message.id} 
+                className={`mb-4 ${message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}`}
+              >
+                <div 
+                  className={`max-w-[80%] rounded-lg p-4 ${
+                    message.role === 'user' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white border border-gray-200 shadow-sm'
+                  }`}
+                >
+                  <div className="whitespace-pre-line">{message.content}</div>
+                  <div 
+                    className={`text-xs mt-2 ${
+                      message.role === 'user' ? 'text-blue-200' : 'text-gray-400'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="flex justify-start mb-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm max-w-[80%]">
+                  <div className="flex space-x-2">
+                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
           </div>
-          
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-3">Staff Allocation</h2>
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Emergency Department</span>
-                  <span>{aiAnalysisData.staffAllocation.emergency.current}/{aiAnalysisData.staffAllocation.emergency.recommended}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-red-500 h-2.5 rounded-full" 
-                    style={{ width: `${(aiAnalysisData.staffAllocation.emergency.current / aiAnalysisData.staffAllocation.emergency.recommended) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>General Ward</span>
-                  <span>{aiAnalysisData.staffAllocation.general.current}/{aiAnalysisData.staffAllocation.general.recommended}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-yellow-500 h-2.5 rounded-full" 
-                    style={{ width: `${(aiAnalysisData.staffAllocation.general.current / aiAnalysisData.staffAllocation.general.recommended) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>ICU</span>
-                  <span>{aiAnalysisData.staffAllocation.icu.current}/{aiAnalysisData.staffAllocation.icu.recommended}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-green-500 h-2.5 rounded-full" 
-                    style={{ width: `${(aiAnalysisData.staffAllocation.icu.current / aiAnalysisData.staffAllocation.icu.recommended) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
+        </div>
+        
+        {/* Input area */}
+        <div className="border-t border-gray-200 p-4 bg-white">
+          <div className="max-w-4xl mx-auto flex">
+            <textarea
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about patients, hospital capacity, staff allocation, or patient flow..."
+              className="flex-1 resize-none border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={1}
+              style={{ minHeight: '44px', maxHeight: '120px' }}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className={`px-4 rounded-r-lg flex items-center justify-center ${
+                !inputValue.trim() || isLoading
+                  ? 'bg-gray-300 text-gray-500'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+              </svg>
+            </button>
           </div>
-          
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-3">Patient Flow</h2>
-            <div className="mb-2">
-              <span className="text-sm text-gray-600">Average Wait Time:</span>
-              <span className="ml-2 font-medium">{aiAnalysisData.patientFlow.averageWaitTime}</span>
-            </div>
-            <div className="mb-2">
-              <span className="text-sm text-gray-600">Bottlenecks:</span>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {aiAnalysisData.patientFlow.bottlenecks.map((item, index) => (
-                  <span key={index} className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">{aiAnalysisData.patientFlow.recommendation}</p>
+          <div className="max-w-4xl mx-auto mt-2">
+            <p className="text-xs text-gray-500">Press Enter to send, Shift+Enter for a new line</p>
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

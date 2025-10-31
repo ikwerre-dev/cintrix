@@ -5,7 +5,7 @@ Here’s the merged and unified PRD, streamlined for clarity, teamwork, and fast
 
 ---
 
-🏥 MedFlow AI — Responsible Emergency Room Optimization System
+🏥 ClinTrix AI — Responsible Emergency Room Optimization System
 
 Tagline:
 Explainable. Ethical. Efficient Emergency Care.
@@ -15,7 +15,7 @@ Explainable. Ethical. Efficient Emergency Care.
 
 🧭 1. Overview
 
-MedFlow AI is a web-based emergency department optimization tool powered by Google Gemini AI.
+ClinTrix AI is a web-based emergency department optimization tool powered by Google Gemini AI.
 It helps hospitals reduce overcrowding, improve triage accuracy, predict patient inflow, and optimize staff and bed allocation — while maintaining Responsible AI principles like transparency, fairness, privacy, and human oversight.
 
 This system empowers triage teams and hospital administrators with AI-assisted recommendations that are always explainable, auditable, and human-approved.
@@ -43,7 +43,7 @@ There is an urgent need for a responsible AI assistant that improves patient flo
 
 💡 3. Solution Overview
 
-MedFlow AI provides an AI-driven triage and resource management platform that:
+ClinTrix AI provides an AI-driven triage and resource management platform that:
 
 Classifies patient cases (Critical, Urgent, Non-Urgent)
 

@@ -46,7 +46,7 @@ export default function AdminLogin() {
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-white">
           <Image 
             src="/logo.png" 
-            alt="MedFlow AI Logo" 
+            alt="ClinTrix AI Logo" 
             width={180} 
             height={60}
             className="mb-12"
@@ -63,13 +63,13 @@ export default function AdminLogin() {
           <div className="text-center mb-8 md:hidden">
             <Image 
               src="/logo.png" 
-              alt="MedFlow AI Logo" 
+              alt="ClinTrix AI Logo" 
               width={160} 
               height={50}
             />
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign in to MedFlow AI Admin</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign in to ClinTrix AI Admin</h2>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">

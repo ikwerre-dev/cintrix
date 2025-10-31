@@ -23,7 +23,7 @@ const HeroSection = () => {
             </h1>
             
             <p className="text-gray-700 text-lg mb-8 leading-relaxed">
-              Metro General faces 8+ hour waits for non‑critical patients. MedFlow AI reduces overcrowding with AI‑assisted triage, dynamic queueing, staffing suggestions, and transparent audit trails—keeping care equitable and safe.
+              Metro General faces 8+ hour waits for non‑critical patients. ClinTrix AI reduces overcrowding with AI‑assisted triage, dynamic queueing, staffing suggestions, and transparent audit trails—keeping care equitable and safe.
             </p>
             
             <div className="flex flex-wrap gap-4">

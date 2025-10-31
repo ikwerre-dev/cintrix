@@ -1,0 +1,31 @@
+{
+  "id": "1761919191992",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi",
+      "timestamp": "2025-10-31T13:59:51.995Z",
+      "id": "1761919191995"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm your ClinTrix AI Assistant, designed to help with hospital management and patient care. I can provide:\n\n1. Patient information and analysis\n2. Hospital capacity insights\n3. Staff allocation recommendations\n4. Patient flow optimization\n\nWhat specific information would you like to know about today?",
+      "timestamp": "2025-10-31T13:59:52.970Z",
+      "id": "1761919192970"
+    },
+    {
+      "role": "user",
+      "content": "1",
+      "timestamp": "2025-10-31T13:59:55.711Z",
+      "id": "1761919195711"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm your ClinTrix AI Assistant, designed to help with hospital management and patient care. I can provide:\n\n1. Patient information and analysis\n2. Hospital capacity insights\n3. Staff allocation recommendations\n4. Patient flow optimization\n\nWhat specific information would you like to know about today?",
+      "timestamp": "2025-10-31T13:59:56.106Z",
+      "id": "1761919196106"
+    }
+  ],
+  "createdAt": "2025-10-31T13:59:51.992Z",
+  "updatedAt": "2025-10-31T13:59:56.106Z"
+}

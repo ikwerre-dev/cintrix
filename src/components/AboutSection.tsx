@@ -119,7 +119,7 @@ const AboutSection = () => {
               {activeTab === 'mission' && (
                 <div>
                     <p className="text-gray-700 mb-4">
-                      MedFlow AI reduces 8+ hour waits with AI‑assisted triage, dynamic queueing, staffing insights, and transparent audits. Equity and safety guide every decision.
+                      ClinTrix AI reduces 8+ hour waits with AI‑assisted triage, dynamic queueing, staffing insights, and transparent audits. Equity and safety guide every decision.
                     </p>
                     <p className="text-gray-700">
                       Built for clinicians, nurses, and administrators to restore flow, protect patient safety, and prevent burnout during peak demand.
@@ -173,7 +173,7 @@ const AboutSection = () => {
               {activeTab === 'story' && (
                 <div>
                     <p className="text-gray-700 mb-4">
-                      Born from frontline ED experience, MedFlow AI focuses on safe, equitable patient flow. Built to help teams manage surges while maintaining quality care.
+                      Born from frontline ED experience, ClinTrix AI focuses on safe, equitable patient flow. Built to help teams manage surges while maintaining quality care.
                     </p>
                     <p className="text-gray-700">
                       We combine data on arrivals, acuity, staffing, and outcomes to guide real‑time decisions and maintain transparency.

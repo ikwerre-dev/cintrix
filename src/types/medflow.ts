@@ -1,6 +1,6 @@
 export type UserRole = 'admin' | 'doctor' | 'nurse' | 'staff';
 
-export interface MedflowUser {
+export interface ClinTrixUser {
   id: string;
   name: string;
   email: string;

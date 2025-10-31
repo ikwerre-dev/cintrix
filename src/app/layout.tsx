@@ -12,13 +12,13 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "MedFlow AI | Emergency Department Optimization",
+  title: "ClinTrix AI | Emergency Department Optimization",
   description: "Clinical management system for overcrowded Emergency Departments. AI-assisted triage, dynamic queueing, staffing suggestions, and transparent audit trails to reduce wait times and improve patient safety.",
   keywords: "emergency department, triage, queue management, staffing optimization, hospital operations, clinical management, responsible AI, audit trail, explainability",
-  authors: [{ name: "MedFlow AI" }],
-  creator: "MedFlow AI",
-  publisher: "MedFlow AI",
-  applicationName: "MedFlow AI",
+  authors: [{ name: "ClinTrix AI" }],
+  creator: "ClinTrix AI",
+  publisher: "ClinTrix AI",
+  applicationName: "ClinTrix AI",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   icons: {
@@ -30,20 +30,20 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://medflow.ai",
-    title: "MedFlow AI | Emergency Department Optimization",
+    url: "https://ClinTrix.ai",
+    title: "ClinTrix AI | Emergency Department Optimization",
     description: "Clinical system for ED flow: AI triage, dynamic queueing, staffing insights, and responsible AI oversight.",
-    siteName: "MedFlow AI",
+    siteName: "ClinTrix AI",
     images: [{
       url: "/og-image.png",
       width: 1200,
       height: 630,
-      alt: "MedFlow AI — Emergency Department Optimization"
+      alt: "ClinTrix AI — Emergency Department Optimization"
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MedFlow AI | Emergency Department Optimization",
+    title: "ClinTrix AI | Emergency Department Optimization",
     description: "AI-powered triage and resource optimization with human oversight and transparency.",
     images: ["/og-image.png"],
   },

@@ -9,6 +9,7 @@ import timeAgo from "@/helpers/timeAgo";
 import {
     Home,
     Settings,
+    Rocket,
     User,
     HelpCircle,
     LogOut,
@@ -83,6 +84,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: Home },
+        { name: "AI", href: "/dashboard/ai", icon:  Rocket},
         { name: "Patient Queue", href: "/dashboard/queue", icon: User },
         { name: "Triage", href: "/dashboard/triage", icon: Bell },
         { name: "Resources", href: "/dashboard/resources", icon: Settings },
@@ -148,12 +150,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className="flex z-10 flex-col h-full">
                     <div className="flex items-center justify-between p-4 border-b border-[#3a6ad4]">
                         <Link href="/dashboard" className="flex items-center">
-                            <Image
-                                src="/logo.png"
-                                alt="MedFlow Logo"
-                                width={50}
-                                height={40}
-                            />
+                            ClinTrix AI
                         </Link>
                         <button
                             className="p-1 rounded-md lg:hidden focus:outline-none focus:ring-2 focus:ring-white"
@@ -207,7 +204,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                             <div className="ml-4 lg:hidden">
                                 <Image
                                     src="/logo.png"
-                                    alt="MedFlow Logo"
+                                    alt="ClinTrix Logo"
                                     width={50}
                                     height={40}
                                 />
