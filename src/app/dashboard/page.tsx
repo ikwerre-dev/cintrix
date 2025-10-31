@@ -10,22 +10,6 @@ import ScansChart from "@/components/ScansChart";
 
 export default function Dashboard() {
   const { userData, records, loading, error, reload } = useUserData();
-  const [viewsCount, setViewsCount] = useState<number>(0);
-  const [viewsByDay, setViewsByDay] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    const fetchViews = async () => {
-      if (!userData?.id) return;
-      try {
-        const res = await fetch(`/api/card?userId=${userData.id}`);
-        const data = await res.json();
-        const card = data.card || {};
-        setViewsCount(card.viewsCount || 0);
-        setViewsByDay(card.viewsByDay || {});
-      } catch {}
-    };
-    fetchViews();
-  }, [userData?.id]);
 
   if (loading) {
     return (
@@ -67,7 +51,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
-       
+
 
           {/* Scans chart with doodle background */}
           <div className="relative overflow-hidden rounded-xl shadow-sm p-6">
@@ -96,10 +80,7 @@ export default function Dashboard() {
                   <div className="text-xs text-white/80">Appointments</div>
                   <div className="mt-1 text-2xl font-bold text-white">{appointmentsCount}</div>
                 </div>
-                <div className="rounded-lg border border-white/20 bg-white/10 p-4">
-                  <div className="text-xs text-white/80">Scanned Times</div>
-                  <div className="mt-1 text-2xl font-bold text-white">{viewsCount}</div>
-                </div>
+
               </div>
             </div>
           </div>
@@ -174,7 +155,6 @@ export default function Dashboard() {
               <h2 className="text-lg font-medium text-gray-800">Card Scans</h2>
               <span className="text-xs text-gray-500">Last 7 days</span>
             </div>
-            <ScansChart data={viewsByDay} />
           </div>
           {/* Support card */}
           <div className="bg-[#194dbe] rounded-xl shadow-sm p-6 text-white">

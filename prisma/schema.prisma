@@ -11,6 +11,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+  STAFF
+}
+
 model User {
   id         String  @id @default(cuid())
   address    String  @unique
@@ -34,6 +40,8 @@ model User {
   // Encryption settings for medical records
   encryptionKey  String?
   encryptionSalt String?
+
+  role       Role    @default(USER)
 
   createdAt  DateTime @default(now())
   records    MedicalRecord[]
@@ -144,4 +152,15 @@ model Appointment {
 
   @@index([userId])
   @@index([doctorId])
+}
+
+model Ward {
+  id        String   @id @default(cuid())
+  name      String
+  capacity  Int
+  occupied  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name])
 }

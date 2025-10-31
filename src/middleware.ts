@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
-
+ 
 // Paths that don't require authentication
 const publicPaths = [
   '/',
@@ -34,19 +33,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  try {
-    // Verify the token
-    await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key')
-    );
-    
-    return NextResponse.next();
-  } catch (error) {
-    // If token is invalid, redirect to login
-    console.error('Token verification error:', error);
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
 }
 
 export const config = {

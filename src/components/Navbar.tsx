@@ -1,10 +1,18 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        try {
+            const r = localStorage.getItem('user-role');
+            setRole(r);
+        } catch {}
+    }, []);
 
     return (
         <nav className="sticky top-0 z-50 bg-white shadow-sm w-full">
@@ -13,7 +21,7 @@ const Navbar = () => {
                     <div className="flex items-center">
                         <Link href="/">
                             <div className="flex items-center text-[#194dbe] font-bold text-xl">
-                                <span className="text-2xl font-bold">MedFlow AI</span>
+                                <span className="text-2xl font-bold">Clintrix ES</span>
                             </div>
                         </Link>
                     </div>
@@ -23,13 +31,12 @@ const Navbar = () => {
                         <Link href="/" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Home</Link>
                         <Link href="/about" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Mission</Link>
                         <Link href="/features" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Solution</Link>
-                        <Link href="/providers" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Resource Dashboard</Link>
+                        {role === 'admin' ? (
+                            <Link href="/admin" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Admin</Link>
+                        ) : (
+                            <Link href="/dashboard" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Dashboard</Link>
+                        )}
                         <Link href="/login" className="text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Login</Link>
-                        <Link href="/register">
-                            <button className="bg-[#194dbe] text-white px-7 py-3 rounded-full hover:bg-opacity-90 transition-all font-medium text-base">
-                                Get started
-                            </button>
-                        </Link>
                     </div>
 
                     {/* Mobile menu button */}
@@ -64,13 +71,12 @@ const Navbar = () => {
                             <Link href="/" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Home</Link>
                             <Link href="/about" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Mission</Link>
                             <Link href="/features" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Solution</Link>
-                            <Link href="/providers" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Resource Dashboard</Link>
+                            {role === 'admin' ? (
+                                <Link href="/admin" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Admin</Link>
+                            ) : (
+                                <Link href="/dashboard" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Dashboard</Link>
+                            )}
                             <Link href="/login" className="block px-3 py-2 text-[#000] hover:text-opacity-80 transition-all font-medium text-base">Login</Link>
-                            <Link href="/register" className="block px-3 py-2">
-                                <button className="w-full bg-[#194dbe] text-white px-7 py-3 rounded-full hover:bg-opacity-90 transition-all font-medium text-base">
-                                    Get started
-                                </button>
-                            </Link>
                         </div>
                     </div>
                 )}

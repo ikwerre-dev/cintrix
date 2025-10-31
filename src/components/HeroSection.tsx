@@ -2,13 +2,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, Shield, Heart, CreditCard, Database } from "lucide-react";
+import { motion } from "framer-motion";
 
 const HeroSection = () => {
   return (
-    <section className="py-16  px-4 sm:px-6 lg:px-8 bg-white">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="md:w-1/2">
+          <motion.div className="md:w-1/2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="text-[#194dbe] font-medium mb-3 inline-block bg-blue-100 px-4 py-1 rounded-full">
               <span className="flex items-center">
                 <Check className="w-4 h-4 mr-2" />
@@ -18,7 +19,7 @@ const HeroSection = () => {
             
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#194dbe] mb-6 leading-tight">
-              Optimize Emergency Department Flow
+              Clintrix ES: Optimize Emergency Department Flow
             </h1>
             
             <p className="text-gray-700 text-lg mb-8 leading-relaxed">
@@ -83,9 +84,9 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
           
-          <div className="md:w-1/2 relative">
+          <motion.div className="md:w-1/2 relative" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
             <div className="relative">
               <div className="bg-[#194dbe] rounded-2xl p-8 shadow-2xl">
                 <div className="bg-white rounded-xl p-6 mb-6">
@@ -137,7 +138,7 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

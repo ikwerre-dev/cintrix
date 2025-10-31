@@ -90,7 +90,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { name: "Medical Card", href: "/dashboard/card", icon: Settings },
         { name: "Privacy", href: "/dashboard/privacy", icon: Settings },
         { name: "Profile", href: "/dashboard/profile", icon: User },
-        { name: "BlockDag", href: "/dashboard/blockdag", icon: Settings },
         { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
         { name: "Help & Support", href: "/dashboard/help", icon: HelpCircle },
     ];
@@ -412,10 +411,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <User className="w-5 h-5" />
                             <span>Profile</span>
                         </Link>
-                        <Link href="/dashboard/blockdag" className={`flex flex-col items-center py-2 ${isActive('/dashboard/blockdag') ? 'text-[#194dbe]' : 'text-gray-600'}`}>
-                            <Settings className="w-5 h-5" />
-                            <span>BlockDag</span>
-                        </Link>
+                        
                     </div>
                 </nav>
             </div>

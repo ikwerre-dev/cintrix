@@ -4,43 +4,50 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { useAccount } from "wagmi"
-import { useWeb3Modal } from "@web3modal/wagmi/react"
 
 export default function Login() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { address, isConnected } = useAccount()
-  const { open } = useWeb3Modal()
 
-  const connectWallet = async () => {
-    try {
-      await open()
-    } catch (e) {
-      setError("Failed to open wallet modal")
-    }
-  }
-
-  const loginWithWallet = async () => {
-    if (!isConnected || !address) {
-      setError("Please connect your wallet to continue")
-      return
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
     setError("")
     try {
-      const res = await fetch("/api/auth/login/wallet", {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL 
+        || (process.env.NEXT_PUBLIC_API_PORT ? `http://localhost:${process.env.NEXT_PUBLIC_API_PORT}` : 'http://localhost:3001')
+      const res = await fetch(`${base}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
+        body: JSON.stringify({ email, password })
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || "Login failed")
-      router.push("/dashboard")
-      // Keep loader shown until route changes
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.")
+      console.log(data)
+      if (!res.ok) throw new Error(data.message || data.error || "Login failed")
+      if (data.token) {
+
+        try {
+          document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`
+          localStorage.setItem("auth-token", data.token)
+          if (data.user?.role) {
+            localStorage.setItem("user-role", String(data.user.role))
+          }
+        } catch {}
+      }
+      const role = String(data.user?.role || '').toLowerCase()
+      if (role === 'admin') {
+        router.push('/admin')
+      } else if (role === 'doctor') {
+        router.push('/dashboard/doctors')
+      } else {
+        router.push('/dashboard')
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+    } finally {
       setLoading(false)
     }
   }
@@ -51,46 +58,28 @@ export default function Login() {
       <div className="hidden md:flex md:w-1/2 bg-[#194dbe] relative">
         <div className="absolute inset-0 bg-[#194dbe] opacity-90"></div>
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-white">
-          <img
-            src="/logo.png"
-            alt="VelTrust Logo"
-            width={50}
-            height={40}
-          />          <h1 className="text-3xl font-bold mb-6">Staff Access</h1>
-          <p className="text-xl mb-8 max-w-md text-center">Sign in to manage triage, queue status, and patient flow safely.</p>
+          <h1 className="text-3xl font-bold mb-6">Staff Access</h1>
+          <p className="text-xl mb-8 max-w-md text-center">Sign in to manage triage, queue status, staffing, and wards.</p>
         </div>
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8 md:hidden">
-            <img src="/logo.png" alt="Bivo Health Logo" width={160} height={50} />
+            <img src="/logo.png" alt="Clintrix ES Logo" width={160} height={50} />
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign in to MedFlow AI</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign in to Clintrix ES</h2>
 
           {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
-
-          <div className="mb-6 p-4 border rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Wallet Status</div>
-                <div className="font-mono text-gray-900">{isConnected && address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not connected"}</div>
-              </div>
-              <button type="button" onClick={connectWallet} className="py-2 px-4 rounded-lg border border-[#194dbe] text-[#194dbe] hover:bg-blue-50">
-                {isConnected ? "Change Wallet" : "Connect Wallet"}
-              </button>
-            </div>
-          </div>
-
-          <button type="button" onClick={loginWithWallet} disabled={loading || !isConnected} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#194dbe] hover:bg-[#0d2d70] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#194dbe] disabled:opacity-50">
-            {loading ? "Signing in..." : "Sign in with Wallet"}
-          </button>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+            <button className="w-full bg-[#194dbe] text-white py-3 rounded-lg hover:bg-opacity-90 transition-all" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
+          </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Need access? <Link href="/register" className="font-medium text-[#194dbe] hover:text-[#0d2d70]">Request staff account</Link>
-            </p>
+            <p className="text-sm text-gray-600">Accounts are created by Admin.</p>
           </div>
         </div>
       </div>
