@@ -18,7 +18,6 @@ import {
     ChevronDown,
     Loader2Icon,
     FileText,
-    CreditCard,
 } from "lucide-react";
 import { useUserData } from '@/hooks/useUserData';
 import { useRouter } from 'next/navigation';
@@ -27,7 +26,16 @@ interface DashboardLayoutProps {
     children: React.ReactNode;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+interface UserData {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
+    createdAt: string;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -37,7 +45,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
     const [currentPageLabel, setCurrentPageLabel] = useState<string>("");
-
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -64,18 +71,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
     const handleLogout = async () => {
         try {
-            const response = await fetch('/api/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                router.push('/login');
-            }
+            localStorage.removeItem('auth-token');
+            router.push('/login');
         } catch (error) {
             console.error('Logout error:', error);
         }
@@ -104,35 +104,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             if (item.href === path) {
                 return item.name;
             }
-            if ((item as any).subItems) {
-                const subItem = (item as any).subItems.find((sub: any) => sub.href === path);
-                if (subItem) {
-                    return subItem.name;
-                }
-            }
         }
         return "Dashboard";
     };
 
     useEffect(() => {
-        const currentItem = navItems.find(
-            (item) =>
-                item.href === pathname ||
-                ((item as any).subItems && (item as any).subItems.some((sub: any) => sub.href === pathname))
-        );
+        const currentItem = navItems.find(item => item.href === pathname);
         if (currentItem) {
             setActiveMenu(pathname);
-            if ((currentItem as any).subItems) {
-                setExpandedMenus([currentItem.href]);
-            } else {
-                setExpandedMenus([]);
-            }
+            setExpandedMenus([]);
         }
         setCurrentPageLabel(getPageLabel(pathname ? pathname : "Dashboard"));
     }, [pathname]);
 
-
-    const { userData, loading,  error } = useUserData();
+    const { userData, loading, error } = useUserData();
 
     if (loading)
         return (
@@ -153,44 +138,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Loader2Icon className="text-[#194dbe] animate-spin" size={50} />
             </div>
         );
-    const user = userData;
-
-    const handleNotificationsOpen = async () => {
-        setIsNotificationsOpen(!isNotificationsOpen);
-
-        if (!isNotificationsOpen) {
-            try {
-                const response = await fetch('/api/user/notifications', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.ok) {
-                    // reload();
-                }
-            } catch (error) {
-                console.error('Error updating notifications:', error);
-            }
-        }
-    };
-
 
     return (
         <div className="flex h-screen bg-gray-50">
             <aside
                 id="sidebar"
-                className={`fixed inset-y-0  realtive left-0 z-50 w-64 bg-[#194dbe] text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-                    }`}
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#194dbe] text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
-
                 <div className="flex z-10 flex-col h-full">
                     <div className="flex items-center justify-between p-4 border-b border-[#3a6ad4]">
                         <Link href="/dashboard" className="flex items-center">
                             <Image
                                 src="/logo.png"
-                                alt="VelTrust Logo"
+                                alt="MedFlow Logo"
                                 width={50}
                                 height={40}
                             />
@@ -217,25 +177,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         <item.icon className="w-5 h-5 mr-3" />
                                         <span>{item.name}</span>
                                     </Link>
-
-                                    {(item as any).subItems && (
-                                        <ul className="ml-10 mt-1 space-y-1">
-                                            {(item as any).subItems.map((subItem: any) => (
-                                                <li key={subItem.name}>
-                                                    <Link
-                                                        href={subItem.href}
-                                                        className={`flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${pathname === subItem.href
-                                                            ? "bg-[#3a6ad4] text-white font-medium"
-                                                            : "text-white/80 hover:bg-[#3a6ad4] hover:text-white"
-                                                            }`}
-                                                    >
-                                                        <span className="w-1.5 h-1.5 bg-white/70 rounded-full mr-3"></span>
-                                                        <span>{subItem.name}</span>
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -266,7 +207,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <div className="ml-4 lg:hidden">
                                 <Image
                                     src="/logo.png"
-                                    alt="VelTrust Logo"
+                                    alt="MedFlow Logo"
                                     width={50}
                                     height={40}
                                 />
@@ -274,15 +215,68 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
 
                         <div className="hidden lg:flex items-start flex-1 px-4 mx-4 lg:mx-0 lg:px-0">
-
                         </div>
- 
+
+                        <div className="flex items-center space-x-4">
+                            <div className="relative">
+                                <button
+                                    id="notifications-button"
+                                    className="relative p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#194dbe]"
+                                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                                >
+                                    <Bell size={20} />
+                                </button>
+                            </div>
+
+                            {/* Profile Dropdown */}
+                            <div className="relative z-50">
+                                <button
+                                    id="profile-button"
+                                    className="flex items-center space-x-3 focus:outline-none"
+                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-[#194dbe] flex items-center justify-center text-white">
+                                        <span className="text-sm font-medium">
+                                            {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                                        </span>
+                                    </div>
+                                </button>
+
+                                {isProfileOpen && (
+                                    <div
+                                        id="profile-menu"
+                                        className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg py-1 z-50 min-w-[12rem] sm:min-w-[18rem] max-w-[90vw]"
+                                    >
+                                        <div className="px-4 py-2 border-b z-50 border-gray-100">
+                                            <p className="text-sm font-medium text-gray-900">{userData.name}</p>
+                                            <p className="text-sm text-gray-500 line-clamp-1">{userData.email}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Role: {userData.role}</p>
+                                        </div>
+                                        <div className="py-1 z-50 bg-white">
+                                            <Link
+                                                href="/dashboard/settings"
+                                                className="block px-4 py-2 text-sm text-gray-700 z-50 hover:bg-gray-50"
+                                            >
+                                                Settings
+                                            </Link>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                                            >
+                                                Sign Out
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </header>
 
                 <main className="flex-1 overflow-y-auto p-6">
                     {children}
                 </main>
+
                 {/* Mobile bottom navigation */}
                 <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t shadow-sm">
                     <div className="grid grid-cols-4 text-xs">
@@ -307,4 +301,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
         </div>
     );
-}
+};
+
+export default DashboardLayout;
