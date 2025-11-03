@@ -1,12 +1,6 @@
 Bivo Health Frontend
 
 **Pitch Deck:** https://www.canva.com/design/DAG2yUfbGyE/-KhxOWwR7Ov1WgDTLcZ81Q/edit?utm_content=DAG2yUfbGyE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
-
-**2 Mins Video:** https://youtube.com/shorts/5MH3WE40SG4?si=hojKFzMwAhXyOQJY
-
-[25/10/2025, 15:06:03] ~ Chidiebube: `https://youtube.com/shorts/5MH3WE40SG4?si=hojKFzMwAhXyOQJY`
-[25/10/2025, 15:13:45] ~ Chidiebube: `https://x.com/BivoHealthhq`
-
 **Summary:** Bivo Health is a patient‑centric medical records web app built with Next.js 15, React 19, and Tailwind. It uses Prisma with Postgres, JWT cookies, and wallet‑based auth (wagmi/web3modal), storing PHI encrypted off‑chain while mirroring minimal metadata on BlockDAG. Users get clean dashboards and CRUD flows for records, doctors, appointments, and insurance.
 
 Overview
